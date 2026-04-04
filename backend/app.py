@@ -6,10 +6,9 @@ app = FastAPI(title="Self-Service Access Portal API")
 
 # Demo manager directory
 MANAGER_MAP: Dict[str, str] = {
-    "alice@company-demo.com": "manager.marketing@company-demo.com",
+    "jerrynjoy.jj@gmail.com": "jerrynjoy.jj@gmail.com",
     "bob@company-demo.com": "manager.it@company-demo.com",
     "charlie@company-demo.com": "manager.projects@company-demo.com",
-    "jerrynjoy.jj@gmail.com": "jerrynjoy.jj@gmail.com"
 }
 
 # Demo resource-to-group mapping
