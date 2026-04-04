@@ -6,7 +6,7 @@ app = FastAPI(title="Self-Service Access Portal API")
 
 # Demo manager directory
 MANAGER_MAP: Dict[str, str] = {
-    "jerrynjoy.jj@gmail.com": "jerrynjoy.jj@gmail.com",
+    "jerryn.c.joy@gmail.com": "jerrynjoy.jj@gmail.com"",
     "bob@company-demo.com": "manager.it@company-demo.com",
     "charlie@company-demo.com": "manager.projects@company-demo.com",
 }
