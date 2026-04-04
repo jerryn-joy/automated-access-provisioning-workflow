@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Service-Portal für Berechtigungsanfragen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: bold;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Self-Service-Portal für Berechtigungsanfragen</h1>
+  <p>Bitte beantrage hier den Zugriff auf eine Ressource.</p>
+
+  <form id="requestForm">
+    <label for="requester_name">Name</label>
+    <input type="text" id="requester_name" name="requester_name" required />
+
+    <label for="requester_email">E-Mail</label>
+    <input type="email" id="requester_email" name="requester_email" required />
+
+    <label for="resource">Ressource</label>
+    <select id="resource" name="resource" required>
+      <option value="">Bitte auswählen</option>
+      <option>Lizenz für Analyse-Software</option>
+      <option>Zugriff auf Projekt-Marketing-SharePoint</option>
+      <option>Zugriff auf internes Wiki-Editoren</option>
+    </select>
+
+    <label for="justification">Begründung</label>
+    <textarea id="justification" name="justification" rows="5" required></textarea>
+
+    <button type="submit">Senden</button>
+  </form>
+
+  <div class="message" id="messageBox"></div>
+
+  <script>
+    const form = document.getElementById('requestForm');
+    const messageBox = document.getElementById('messageBox');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        requester_name: document.getElementById('requester_name').value,
+        requester_email: document.getElementById('requester_email').value,
+        resource: document.getElementById('resource').value,
+        justification: document.getElementById('justification').value
+      };
+
+      try {
+        const response = await fetch('https://YOUR-N8N-DOMAIN/webhook/access-request-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        messageBox.style.display = 'block';
+        messageBox.innerText = data.message || 'Anfrage erfolgreich gesendet.';
+        form.reset();
+      } catch (err) {
+        messageBox.style.display = 'block';
+        messageBox.innerText = 'Fehler beim Senden der Anfrage.';
+      }
+    });
+  </script>
+</body>
+</html>
