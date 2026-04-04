@@ -1,66 +1,137 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self-Service-Portal für Berechtigungsanfragen</title>
+  <title>Access Management Portal</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 720px;
-      margin: 40px auto;
-      padding: 20px;
-      line-height: 1.5;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
     }
+
+    .header {
+      background-color: white;
+      padding: 16px 32px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+    }
+
+    .header img {
+      height: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
     label {
       display: block;
       margin-top: 16px;
       font-weight: bold;
+      font-size: 14px;
     }
-    input, select, textarea, button {
+
+    input, select, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
-      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
     }
+
     button {
-      margin-top: 20px;
+      width: 100%;
+      margin-top: 24px;
+      padding: 12px;
+      background-color: #003A8F;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
       cursor: pointer;
     }
+
+    button:hover {
+      background-color: #002c6b;
+    }
+
     .message {
-      margin-top: 20px;
-      padding: 12px;
-      border: 1px solid #ccc;
-      display: none;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    min-height: 20px;
+    }
+
+    .success {
+      background-color: #e6f4ea;
+      border: 1px solid #b7dfc2;
+      color: #2e7d32;
+    }
+
+    .error {
+      background-color: #fdecea;
+      border: 1px solid #f5c6cb;
+      color: #c62828;
     }
   </style>
 </head>
+
 <body>
-  <h1>Self-Service-Portal für Berechtigungsanfragen</h1>
-  <p>Bitte beantrage hier den Zugriff auf eine Ressource.</p>
 
-  <form id="requestForm">
-    <label for="requester_name">Name</label>
-    <input type="text" id="requester_name" name="requester_name" required />
+  <div class="header">
+    <img src="https://pharmasgp.com/wp-content/uploads/2022/07/PharmaSGP_RGB.svg" alt="PharmaSGP Logo">
+  </div>
 
-    <label for="requester_email">E-Mail</label>
-    <input type="email" id="requester_email" name="requester_email" required />
+  <div class="container">
+    <h1>Access Management Portal</h1>
+    <p>Request access to internal systems and resources</p>
 
-    <label for="resource">Ressource</label>
-    <select id="resource" name="resource" required>
-      <option value="">Bitte auswählen</option>
-      <option>Lizenz für Analyse-Software</option>
-      <option>Zugriff auf Projekt-Marketing-SharePoint</option>
-      <option>Zugriff auf internes Wiki-Editoren</option>
-    </select>
+    <form id="requestForm">
 
-    <label for="justification">Begründung</label>
-    <textarea id="justification" name="justification" rows="5" required></textarea>
+      <label>Employee Name</label>
+      <input type="text" id="requester_name" required />
 
-    <button type="submit">Senden</button>
-  </form>
+      <label>Employee Email</label>
+      <input type="email" id="requester_email" required />
 
-  <div class="message" id="messageBox"></div>
+      <label>Requested Resource</label>
+      <select id="resource" required>
+        <option value="">Select a resource</option>
+        <option>License for Analysis Software</option>
+        <option>Access to Project Marketing SharePoint</option>
+        <option>Access to Internal Wiki Editors</option>
+      </select>
+
+      <label>Reason for Access</label>
+      <textarea id="justification" rows="5" required></textarea>
+
+      <button type="submit">Submit Access Request</button>
+    </form>
+
+    <div class="message" id="messageBox"></div>
+  </div>
 
   <script>
     const form = document.getElementById('requestForm');
@@ -68,6 +139,11 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const submitButton = form.querySelector('button');
+
+      submitButton.disabled = true;
+      submitButton.innerText = 'Submitting...';
 
       const payload = {
         requester_name: document.getElementById('requester_name').value,
@@ -83,16 +159,29 @@
           body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        let message = 'Your request has been received and is being processed.';
+
+        try {
+          const data = await response.json();
+          message = data.message || message;
+        } catch (e) {}
 
         messageBox.style.display = 'block';
-        messageBox.innerText = data.message || 'Anfrage erfolgreich gesendet.';
+        messageBox.className = 'message success';
+        messageBox.innerText = message;
+
         form.reset();
+
       } catch (err) {
         messageBox.style.display = 'block';
-        messageBox.innerText = 'Fehler beim Senden der Anfrage.';
+        messageBox.className = 'message error';
+        messageBox.innerText = 'We could not submit your request at the moment. Please try again later or contact IT support.';
       }
+
+      submitButton.disabled = false;
+      submitButton.innerText = 'Submit Access Request';
     });
   </script>
+
 </body>
 </html>
