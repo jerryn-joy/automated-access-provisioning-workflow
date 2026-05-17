@@ -37,7 +37,7 @@ Together they cover the full lifecycle:
 
 Triggered by a **webhook on form submission**.
 
-![Submission Workflow](assets/submission-workflow.png)
+<img src="assets/submission-workflow.png" width="1000"/>
 
 ---
 
@@ -45,7 +45,7 @@ Triggered by a **webhook on form submission**.
 
 Triggered by a **webhook on manager email click** (Approve or Reject).
 
-![Decision Workflow](assets/decision-workflow.png)
+<img src="assets/decision-workflow.png" width="1000"/>
 
 ---
 
