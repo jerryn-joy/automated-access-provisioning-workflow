@@ -29,7 +29,7 @@ Together they cover the full lifecycle:
 
 ## Web Form
 
-![Access Request Form](assets/web-form.png)
+<img src="assets/web-form.png" width="500"/>
 
 ---
 
