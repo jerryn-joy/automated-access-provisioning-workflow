@@ -12,11 +12,40 @@ Built to demonstrate **workflow orchestration**, **API integration**, **event-dr
 Employee submits request → Manager approves via email → Access provisioned automatically
 ```
 
+The system is powered by two event-driven workflows:
+
+- **Submission Workflow** — triggered when an employee submits the web form; handles manager resolution and sends the approval email
+- **Decision Workflow** — triggered when the manager clicks Approve or Reject in the email; handles provisioning, notifications, and audit logging
+
+Together they cover the full lifecycle:
+
 1. Employee fills out a lightweight web form to request a resource
-2. Workflow resolves their manager and sends a structured approval email
+2. Submission Workflow fires → resolves their manager and sends a structured approval email
 3. Manager approves or rejects with a single click
-4. Approved requests trigger automatic provisioning via API
+4. Decision Workflow fires → provisions access automatically on approval, or notifies the requester on rejection
 5. Every action is tracked with full audit trail and failure handling
+
+---
+
+## Web Form
+
+![Access Request Form](assets/web-form.png)
+
+---
+
+## Submission Workflow
+
+Triggered by a **webhook on form submission**.
+
+![Submission Workflow](assets/submission-workflow.png)
+
+---
+
+## Decision Workflow
+
+Triggered by a **webhook on manager email click** (Approve or Reject).
+
+![Decision Workflow](assets/decision-workflow.png)
 
 ---
 
@@ -51,35 +80,40 @@ In most organizations, access provisioning is still manual — ticket-based, IT-
 ```
 Frontend (Employee Request Form)
         │
+        │  form submission
         ▼
-n8n Workflow Engine (Orchestration Layer)
+Submission Workflow (n8n)
         │
         ├── Manager Lookup API
         │
-        ├── Email Approval Process (Gmail API)
-        │        │
-        │        ├── Approve → Provision Access
-        │        └── Reject  → Notify User
-        │
-        ├── Provisioning API (Access Control)
-        │
-        ▼
-Supabase Database (State + Audit Layer)
-        │
-        ├── access_requests
-        ├── resource_group_map
-        └── user_group_access
+        └── Approval Email (Gmail API)
+                 │
+                 │  manager clicks Approve / Reject
+                 ▼
+        Decision Workflow (n8n)
+                 │
+                 ├── Approve → Provisioning API → Assign group → Confirm email
+                 └── Reject  → Notify requester
+                 │
+                 ▼
+        Supabase Database (State + Audit Layer)
+                 │
+                 ├── access_requests
+                 ├── resource_group_map
+                 └── user_group_access
 ```
 
 ---
 
-## Workflow
+## Workflow Breakdown
 
 ### 1. Request Submission
 
 Employee submits a form with the resource they need and a business justification.
 
 Example resources: `Analytics Software License`, `Marketing SharePoint Access`
+
+> **Submission Workflow** is triggered here via webhook on form submit.
 
 ### 2. Manager Resolution
 
@@ -90,6 +124,8 @@ GET /api/manager/{employee-email}
 ### 3. Approval Email
 
 Manager receives a structured email with request details, justification, and one-click Approve / Reject links.
+
+> **Decision Workflow** is triggered here via webhook when the manager clicks either link.
 
 ### 4. Decision Handling
 
@@ -105,7 +141,7 @@ Manager receives a structured email with request details, justification, and one
 
 ### 5. Failure Handling
 
-If provisioning fails, the workflow flags the request, notifies IT, alerts the user of the delay, and logs the error for audit.
+If provisioning fails, the Decision Workflow flags the request, notifies IT, alerts the user of the delay, and logs the error for audit.
 
 ---
 
@@ -134,19 +170,10 @@ If provisioning fails, the workflow flags the request, notifies IT, alerts the u
 
 ---
 
-## Security & Design
-
-- No hardcoded secrets — all credentials via environment variables
-- Secure API authentication throughout
-- Role-based access assumptions for provisioning
-- Full audit trail for every request state change
-
----
-
 ## What this demonstrates
 
+- Event-driven workflow architecture (two discrete workflows, each triggered by a distinct external event)
 - Workflow automation and orchestration design
-- Event-driven workflow architecture
 - API integration across distributed services
 - Approval-based enterprise workflows
 - Robust error handling and edge case coverage
