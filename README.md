@@ -1,4 +1,4 @@
-# Automated Self-Service Access Request & Provisioning Workflow
+# Automated Access Request & Provisioning Workflow
 
 An end-to-end access management automation workflow that lets employees request internal tool access, routes approvals to managers via email, and automatically provisions access through API integrations once approved.
 
